@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Roland Krasser" />
+
+<meta name="date" content="2025-01-07" />
+
+<title>utf8ify</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">utf8ify</h1>
+<h4 class="author">Roland Krasser</h4>
+<h4 class="date">2025-01-07</h4>
+
+
+
+<div id="format-text" class="section level1">
+<h1>Format text</h1>
+<p>Use <code>utf8_text_*()</code> functions to format text (using
+Utf8)</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(utf8ify)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">Hello World&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  text,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="fu">utf8_text_bold</span>(text),</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">utf8_text_bold2</span>(text),</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="fu">utf8_text_italic</span>(text),</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="fu">utf8_text_bolditalic</span>(text),</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="fu">utf8_text_cursive</span>(text),</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="fu">utf8_text_gothic</span>(text),</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">utf8_text_circle</span>(text)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## 
+## Hello World 
+## 𝗛𝗲𝗹𝗹𝗼 𝗪𝗼𝗿𝗹𝗱 
+## 𝐇𝐞𝐥𝐥𝐨 𝐖𝐨𝐫𝐥𝐝 
+## 𝘏𝘦𝘭𝘭𝘰 𝘞𝘰𝘳𝘭𝘥 
+## 𝑯𝒆𝒍𝒍𝒐 𝑾𝒐𝒓𝒍𝒅 
+## 𝓗𝓮𝓵𝓵𝓸 𝓦𝓸𝓻𝓵𝓭 
+## 𝕳𝖊𝖑𝖑𝖔 𝖂𝖔𝖗𝖑𝖉 
+## Ⓗⓔⓛⓛⓞ Ⓦⓞⓡⓛⓓ</code></pre>
+<p>Not all characters can be formatted. In this example the letter
+<code>ö</code>is not formatted bold (as there is no corresponding Utf8
+bold character)</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">utf8_text_bold</span>(<span class="st">&quot;Heute ist ein schöner Tag&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;𝗛𝗲𝘂𝘁𝗲 𝗶𝘀𝘁 𝗲𝗶𝗻 𝘀𝗰𝗵ö𝗻𝗲𝗿 𝗧𝗮𝗴&quot;</code></pre>
+</div>
+<div id="format-number" class="section level1">
+<h1>Format number</h1>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">utf8_number_box</span>(<span class="fl">123.45</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;1️⃣2️⃣3️⃣.4️⃣5️⃣&quot;</code></pre>
+</div>
+<div id="collection" class="section level1">
+<h1>Collection</h1>
+<p>{utf8ify} comes with a collection of Utf8 symbols &amp; emojis. They
+are structured as a list.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>u <span class="ot">&lt;-</span> <span class="fu">utf8_collection</span>()</span></code></pre></div>
+<div id="fav-favorites" class="section level2">
+<h2>fav (favorites)</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>u<span class="sc">$</span>fav <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>## arrow_right  arrow_left        beer        bulb       check    clapping 
+##         &quot;➡&quot;         &quot;⬅&quot;        &quot;🍺&quot;        &quot;💡&quot;         &quot;✔️&quot;        &quot;👏&quot; 
+##      coffee       cross       email        eyes        fire point_right 
+##        &quot;☕&quot;        &quot;❌&quot;        &quot;📧&quot;        &quot;👀&quot;        &quot;🔥&quot;        &quot;👉&quot; 
+##  point_left       happy       heart         joy         key       money 
+##        &quot;👈&quot;        &quot;😀&quot;         &quot;❤️&quot;        &quot;😂&quot;        &quot;🔑&quot;        &quot;💰&quot; 
+##  onehundret       party         poo    question    surprise       sweat 
+##        &quot;💯&quot;        &quot;🎉&quot;        &quot;💩&quot;        &quot;❓&quot;        &quot;😮&quot;        &quot;😅&quot; 
+##      rocket      speech        star  sunglasses      target      thanks 
+##        &quot;🚀&quot;        &quot;💬&quot;        &quot;⭐&quot;        &quot;😎&quot;        &quot;🎯&quot;        &quot;🙏&quot; 
+##       think   thumbs_up thumbs_down         ups        wink      zipper 
+##        &quot;🤔&quot;        &quot;👍&quot;        &quot;👎&quot;        &quot;🤭&quot;        &quot;👋&quot;        &quot;🤐&quot;</code></pre>
+</div>
+<div id="animal" class="section level2">
+<h2>animal</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>u<span class="sc">$</span>animal <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>##     bee    bull     cat     cow     dog dolphin    fish   horse   llama  monkey 
+##    &quot;🐝&quot;    &quot;🐂&quot;    &quot;🐈&quot;    &quot;🐄&quot;    &quot;🐕&quot;    &quot;🐬&quot;    &quot;🐟&quot;    &quot;🐎&quot;    &quot;🦙&quot;    &quot;🐒&quot; 
+##     pig     rat  rabbit   snake   tiger 
+##    &quot;🐖&quot;    &quot;🐀&quot;    &quot;🐇&quot;    &quot;🐌&quot;    &quot;🐅&quot;</code></pre>
+</div>
+<div id="celebrate" class="section level2">
+<h2>celebrate</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>u<span class="sc">$</span>celebrate <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>##      present         cake party_popper      balloon      pumpkin    xmas_tree 
+##         &quot;🎁&quot;         &quot;🎂&quot;         &quot;🎉&quot;         &quot;🎈&quot;         &quot;🎃&quot;         &quot;🎄&quot; 
+##        santa    fireworks   graduation 
+##         &quot;🎅&quot;         &quot;🎆&quot;         &quot;🎓&quot;</code></pre>
+</div>
+<div id="clock" class="section level2">
+<h2>clock</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>u<span class="sc">$</span>clock <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>## clock_01 clock_02 clock_03 clock_04 clock_05 clock_06 clock_07 clock_08 
+##     &quot;🕐&quot;     &quot;🕑&quot;     &quot;🕒&quot;     &quot;🕓&quot;     &quot;🕔&quot;     &quot;🕕&quot;     &quot;🕖&quot;     &quot;🕗&quot; 
+## clock_09 clock_10 clock_11 clock_12 
+##     &quot;🕘&quot;     &quot;🕙&quot;     &quot;🕚&quot;     &quot;🕛&quot;</code></pre>
+</div>
+<div id="eat" class="section level2">
+<h2>eat</h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>u<span class="sc">$</span>eat <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>##     apple      cake    cherry    cookie     fries hamburger     lemon     pizza 
+##      &quot;🍏&quot;      &quot;🍰&quot;      &quot;🍒&quot;      &quot;🍪&quot;      &quot;🍟&quot;      &quot;🍔&quot;      &quot;🍋&quot;      &quot;🍕&quot; 
+##     plate   popcorn 
+##       &quot;🍽&quot;      &quot;🍿&quot;</code></pre>
+</div>
+<div id="drink" class="section level2">
+<h2>drink</h2>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>u<span class="sc">$</span>drink <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>##     beer    beer2   bottle   coffee cocktail     wine 
+##     &quot;🍺&quot;     &quot;🍻&quot;     &quot;🍾&quot;     &quot;☕&quot;     &quot;🍸&quot;     &quot;🍷&quot;</code></pre>
+</div>
+<div id="list" class="section level2">
+<h2>list</h2>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>u<span class="sc">$</span>list <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>##    arrow_right         circle          check      check_box        diamond 
+##            &quot;➡&quot;            &quot;○&quot;            &quot;✔️&quot;           &quot;✅&quot;            &quot;◆&quot; 
+##   diamond_blue diamond_orange      dot_black       dot_blue      dot_green 
+##           &quot;🔹&quot;           &quot;🔸&quot;           &quot;⚫&quot;           &quot;🔵&quot;           &quot;🟢&quot; 
+##     dot_orange        dot_red      dot_small 
+##           &quot;🟠&quot;           &quot;🔴&quot;            &quot;●&quot;</code></pre>
+</div>
+<div id="office" class="section level2">
+<h2>office</h2>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>u<span class="sc">$</span>office <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>##   calendar   chart_up chart_down    desktop     folder     laptop  paperclip 
+##        &quot;🗓&quot;       &quot;📈&quot;       &quot;📉&quot;        &quot;🖥&quot;       &quot;📂&quot;       &quot;💻&quot;       &quot;📎&quot; 
+##       page        pen    printer    pushpin   pushpin2   scissors      trash 
+##       &quot;📄&quot;        &quot;🖊&quot;        &quot;🖨&quot;       &quot;📌&quot;       &quot;📍&quot;        &quot;✂&quot;        &quot;🗑&quot;</code></pre>
+</div>
+<div id="person" class="section level2">
+<h2>person</h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>u<span class="sc">$</span>person <span class="sc">|&gt;</span> <span class="fu">unlist</span>()</span></code></pre></div>
+<pre><code>##       woman         man        girl         boy   couple_fm   couple_mm 
+##        &quot;👩&quot;        &quot;👨&quot;        &quot;👧&quot;        &quot;👦&quot;        &quot;👫&quot;        &quot;👬&quot; 
+##   couple_ff      family older_woman   older_man 
+##        &quot;👭&quot;        &quot;👪&quot;        &quot;👵&quot;        &quot;👴&quot;</code></pre>
+</div>
+</div>
+<div id="block" class="section level1">
+<h1>Block</h1>
+<p>Use <code>utf8_block()</code> to show a complete Utf8 block:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">utf8_block</span>(<span class="at">from =</span> <span class="st">&quot;0x1F600&quot;</span>, <span class="at">to =</span> <span class="st">&quot;0x1F64F&quot;</span>, <span class="at">show_names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<pre><code>##  [1] &quot;😀&quot; &quot;😁&quot; &quot;😂&quot; &quot;😃&quot; &quot;😄&quot; &quot;😅&quot; &quot;😆&quot; &quot;😇&quot; &quot;😈&quot; &quot;😉&quot; &quot;😊&quot; &quot;😋&quot; &quot;😌&quot; &quot;😍&quot; &quot;😎&quot;
+## [16] &quot;😏&quot; &quot;😐&quot; &quot;😑&quot; &quot;😒&quot; &quot;😓&quot; &quot;😔&quot; &quot;😕&quot; &quot;😖&quot; &quot;😗&quot; &quot;😘&quot; &quot;😙&quot; &quot;😚&quot; &quot;😛&quot; &quot;😜&quot; &quot;😝&quot;
+## [31] &quot;😞&quot; &quot;😟&quot; &quot;😠&quot; &quot;😡&quot; &quot;😢&quot; &quot;😣&quot; &quot;😤&quot; &quot;😥&quot; &quot;😦&quot; &quot;😧&quot; &quot;😨&quot; &quot;😩&quot; &quot;😪&quot; &quot;😫&quot; &quot;😬&quot;
+## [46] &quot;😭&quot; &quot;😮&quot; &quot;😯&quot; &quot;😰&quot; &quot;😱&quot; &quot;😲&quot; &quot;😳&quot; &quot;😴&quot; &quot;😵&quot; &quot;😶&quot; &quot;😷&quot; &quot;😸&quot; &quot;😹&quot; &quot;😺&quot; &quot;😻&quot;
+## [61] &quot;😼&quot; &quot;😽&quot; &quot;😾&quot; &quot;😿&quot; &quot;🙀&quot; &quot;🙁&quot; &quot;🙂&quot; &quot;🙃&quot; &quot;🙄&quot; &quot;🙅&quot; &quot;🙆&quot; &quot;🙇&quot; &quot;🙈&quot; &quot;🙉&quot; &quot;🙊&quot;
+## [76] &quot;🙋&quot; &quot;🙌&quot; &quot;🙍&quot; &quot;🙎&quot; &quot;🙏&quot;</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">utf8_block</span>(<span class="at">from =</span> <span class="st">&quot;0x2600&quot;</span>, <span class="at">to =</span> <span class="st">&quot;0x26FF&quot;</span>, <span class="at">show_names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<pre><code>##   [1] &quot;☀&quot;  &quot;☁&quot;  &quot;☂&quot;  &quot;☃&quot;  &quot;☄&quot;  &quot;★&quot;  &quot;☆&quot;  &quot;☇&quot;  &quot;☈&quot;  &quot;☉&quot;  &quot;☊&quot;  &quot;☋&quot;  &quot;☌&quot;  &quot;☍&quot;  &quot;☎&quot; 
+##  [16] &quot;☏&quot;  &quot;☐&quot;  &quot;☑&quot;  &quot;☒&quot;  &quot;☓&quot;  &quot;☔&quot; &quot;☕&quot; &quot;☖&quot;  &quot;☗&quot;  &quot;☘&quot;  &quot;☙&quot;  &quot;☚&quot;  &quot;☛&quot;  &quot;☜&quot;  &quot;☝&quot; 
+##  [31] &quot;☞&quot;  &quot;☟&quot;  &quot;☠&quot;  &quot;☡&quot;  &quot;☢&quot;  &quot;☣&quot;  &quot;☤&quot;  &quot;☥&quot;  &quot;☦&quot;  &quot;☧&quot;  &quot;☨&quot;  &quot;☩&quot;  &quot;☪&quot;  &quot;☫&quot;  &quot;☬&quot; 
+##  [46] &quot;☭&quot;  &quot;☮&quot;  &quot;☯&quot;  &quot;☰&quot;  &quot;☱&quot;  &quot;☲&quot;  &quot;☳&quot;  &quot;☴&quot;  &quot;☵&quot;  &quot;☶&quot;  &quot;☷&quot;  &quot;☸&quot;  &quot;☹&quot;  &quot;☺&quot;  &quot;☻&quot; 
+##  [61] &quot;☼&quot;  &quot;☽&quot;  &quot;☾&quot;  &quot;☿&quot;  &quot;♀&quot;  &quot;♁&quot;  &quot;♂&quot;  &quot;♃&quot;  &quot;♄&quot;  &quot;♅&quot;  &quot;♆&quot;  &quot;♇&quot;  &quot;♈&quot; &quot;♉&quot; &quot;♊&quot;
+##  [76] &quot;♋&quot; &quot;♌&quot; &quot;♍&quot; &quot;♎&quot; &quot;♏&quot; &quot;♐&quot; &quot;♑&quot; &quot;♒&quot; &quot;♓&quot; &quot;♔&quot;  &quot;♕&quot;  &quot;♖&quot;  &quot;♗&quot;  &quot;♘&quot;  &quot;♙&quot; 
+##  [91] &quot;♚&quot;  &quot;♛&quot;  &quot;♜&quot;  &quot;♝&quot;  &quot;♞&quot;  &quot;♟&quot;  &quot;♠&quot;  &quot;♡&quot;  &quot;♢&quot;  &quot;♣&quot;  &quot;♤&quot;  &quot;♥&quot;  &quot;♦&quot;  &quot;♧&quot;  &quot;♨&quot; 
+## [106] &quot;♩&quot;  &quot;♪&quot;  &quot;♫&quot;  &quot;♬&quot;  &quot;♭&quot;  &quot;♮&quot;  &quot;♯&quot;  &quot;♰&quot;  &quot;♱&quot;  &quot;♲&quot;  &quot;♳&quot;  &quot;♴&quot;  &quot;♵&quot;  &quot;♶&quot;  &quot;♷&quot; 
+## [121] &quot;♸&quot;  &quot;♹&quot;  &quot;♺&quot;  &quot;♻&quot;  &quot;♼&quot;  &quot;♽&quot;  &quot;♾&quot;  &quot;♿&quot; &quot;⚀&quot;  &quot;⚁&quot;  &quot;⚂&quot;  &quot;⚃&quot;  &quot;⚄&quot;  &quot;⚅&quot;  &quot;⚆&quot; 
+## [136] &quot;⚇&quot;  &quot;⚈&quot;  &quot;⚉&quot;  &quot;⚊&quot;  &quot;⚋&quot;  &quot;⚌&quot;  &quot;⚍&quot;  &quot;⚎&quot;  &quot;⚏&quot;  &quot;⚐&quot;  &quot;⚑&quot;  &quot;⚒&quot;  &quot;⚓&quot; &quot;⚔&quot;  &quot;⚕&quot; 
+## [151] &quot;⚖&quot;  &quot;⚗&quot;  &quot;⚘&quot;  &quot;⚙&quot;  &quot;⚚&quot;  &quot;⚛&quot;  &quot;⚜&quot;  &quot;⚝&quot;  &quot;⚞&quot;  &quot;⚟&quot;  &quot;⚠&quot;  &quot;⚡&quot; &quot;⚢&quot;  &quot;⚣&quot;  &quot;⚤&quot; 
+## [166] &quot;⚥&quot;  &quot;⚦&quot;  &quot;⚧&quot;  &quot;⚨&quot;  &quot;⚩&quot;  &quot;⚪&quot; &quot;⚫&quot; &quot;⚬&quot;  &quot;⚭&quot;  &quot;⚮&quot;  &quot;⚯&quot;  &quot;⚰&quot;  &quot;⚱&quot;  &quot;⚲&quot;  &quot;⚳&quot; 
+## [181] &quot;⚴&quot;  &quot;⚵&quot;  &quot;⚶&quot;  &quot;⚷&quot;  &quot;⚸&quot;  &quot;⚹&quot;  &quot;⚺&quot;  &quot;⚻&quot;  &quot;⚼&quot;  &quot;⚽&quot; &quot;⚾&quot; &quot;⚿&quot;  &quot;⛀&quot;  &quot;⛁&quot;  &quot;⛂&quot; 
+## [196] &quot;⛃&quot;  &quot;⛄&quot; &quot;⛅&quot; &quot;⛆&quot;  &quot;⛇&quot;  &quot;⛈&quot;  &quot;⛉&quot;  &quot;⛊&quot;  &quot;⛋&quot;  &quot;⛌&quot;  &quot;⛍&quot;  &quot;⛎&quot; &quot;⛏&quot;  &quot;⛐&quot;  &quot;⛑&quot; 
+## [211] &quot;⛒&quot;  &quot;⛓&quot;  &quot;⛔&quot; &quot;⛕&quot;  &quot;⛖&quot;  &quot;⛗&quot;  &quot;⛘&quot;  &quot;⛙&quot;  &quot;⛚&quot;  &quot;⛛&quot;  &quot;⛜&quot;  &quot;⛝&quot;  &quot;⛞&quot;  &quot;⛟&quot;  &quot;⛠&quot; 
+## [226] &quot;⛡&quot;  &quot;⛢&quot;  &quot;⛣&quot;  &quot;⛤&quot;  &quot;⛥&quot;  &quot;⛦&quot;  &quot;⛧&quot;  &quot;⛨&quot;  &quot;⛩&quot;  &quot;⛪&quot; &quot;⛫&quot;  &quot;⛬&quot;  &quot;⛭&quot;  &quot;⛮&quot;  &quot;⛯&quot; 
+## [241] &quot;⛰&quot;  &quot;⛱&quot;  &quot;⛲&quot; &quot;⛳&quot; &quot;⛴&quot;  &quot;⛵&quot; &quot;⛶&quot;  &quot;⛷&quot;  &quot;⛸&quot;  &quot;⛹&quot;  &quot;⛺&quot; &quot;⛻&quot;  &quot;⛼&quot;  &quot;⛽&quot; &quot;⛾&quot; 
+## [256] &quot;⛿&quot;</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">utf8_block</span>(<span class="at">from =</span> <span class="st">&quot;0x16A0&quot;</span>, <span class="at">to =</span> <span class="st">&quot;0x16F0&quot;</span>, <span class="at">show_names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<pre><code>##  [1] &quot;ᚠ&quot; &quot;ᚡ&quot; &quot;ᚢ&quot; &quot;ᚣ&quot; &quot;ᚤ&quot; &quot;ᚥ&quot; &quot;ᚦ&quot; &quot;ᚧ&quot; &quot;ᚨ&quot; &quot;ᚩ&quot; &quot;ᚪ&quot; &quot;ᚫ&quot; &quot;ᚬ&quot; &quot;ᚭ&quot; &quot;ᚮ&quot; &quot;ᚯ&quot; &quot;ᚰ&quot; &quot;ᚱ&quot; &quot;ᚲ&quot;
+## [20] &quot;ᚳ&quot; &quot;ᚴ&quot; &quot;ᚵ&quot; &quot;ᚶ&quot; &quot;ᚷ&quot; &quot;ᚸ&quot; &quot;ᚹ&quot; &quot;ᚺ&quot; &quot;ᚻ&quot; &quot;ᚼ&quot; &quot;ᚽ&quot; &quot;ᚾ&quot; &quot;ᚿ&quot; &quot;ᛀ&quot; &quot;ᛁ&quot; &quot;ᛂ&quot; &quot;ᛃ&quot; &quot;ᛄ&quot; &quot;ᛅ&quot;
+## [39] &quot;ᛆ&quot; &quot;ᛇ&quot; &quot;ᛈ&quot; &quot;ᛉ&quot; &quot;ᛊ&quot; &quot;ᛋ&quot; &quot;ᛌ&quot; &quot;ᛍ&quot; &quot;ᛎ&quot; &quot;ᛏ&quot; &quot;ᛐ&quot; &quot;ᛑ&quot; &quot;ᛒ&quot; &quot;ᛓ&quot; &quot;ᛔ&quot; &quot;ᛕ&quot; &quot;ᛖ&quot; &quot;ᛗ&quot; &quot;ᛘ&quot;
+## [58] &quot;ᛙ&quot; &quot;ᛚ&quot; &quot;ᛛ&quot; &quot;ᛜ&quot; &quot;ᛝ&quot; &quot;ᛞ&quot; &quot;ᛟ&quot; &quot;ᛠ&quot; &quot;ᛡ&quot; &quot;ᛢ&quot; &quot;ᛣ&quot; &quot;ᛤ&quot; &quot;ᛥ&quot; &quot;ᛦ&quot; &quot;ᛧ&quot; &quot;ᛨ&quot; &quot;ᛩ&quot; &quot;ᛪ&quot; &quot;᛫&quot;
+## [77] &quot;᛬&quot; &quot;᛭&quot; &quot;ᛮ&quot; &quot;ᛯ&quot; &quot;ᛰ&quot;</code></pre>
+</div>
+<div id="inspect" class="section level1">
+<h1>Inspect</h1>
+<p>If you found an Utf8 character on the internet, you can inspect it
+using <code>utf8_inspect()</code></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">utf8_inspect</span>(<span class="st">&quot;❤️&quot;</span>)</span></code></pre></div>
+<pre><code>## chr = ❤️ 
+## int = 10084 65039 
+## hex = 2764 fe0f</code></pre>
+<p>Here you can see, that this heard symbol is a combination of two Utf8
+characters.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
